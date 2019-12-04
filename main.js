@@ -15,6 +15,8 @@ xhr.addEventListener('load', () => {
     document.querySelector('#currency_list').addEventListener('change', (event) => {
         let currencyCode = event.target.options[event.target.selectedIndex].value;
         const xhrCurrency = new XMLHttpRequest();
+        xhrCurrency.open('GET',`http://api.nbp.pl/api/exchangerates/rates/A/${currencyCode}/`,true);
+        xhrCurrency.send();
         xhrCurrency.addEventListener('load', () => {
             let json = JSON.parse(xhrCurrency.response);
             let span = document.createElement('span');
@@ -23,6 +25,7 @@ xhr.addEventListener('load', () => {
             let moneyLabel = document.createElement('label');
             let money = document.createElement('input');
             let course = json.rates[0].mid.toFixed(2);
+            console.log(course);
             groupDiv.className = 'group';
             groupDivCourse.className = 'group';
             moneyLabel.for = 'money';
@@ -31,6 +34,18 @@ xhr.addEventListener('load', () => {
             money.type = 'number';
             span.innerText = `Kurs: ${course} zł`;
             span.id = 'course';
+
+            // count = (event) => {
+            //     if(document.querySelector('#owned_money') == null) {
+            //         let result = document.createElement('span');
+            //         result.id = 'owned_money';
+            //         result.innerText = `Masz: ${(event.target.value * course).toFixed(2)} zł`;
+            //         resultDiv.appendChild(result);
+            //     } else {
+            //         document.querySelector('#owned_money').innerText = `Masz: ${(event.target.value * course).toFixed(2)} zł`;
+            //     }
+            // }
+            // money.addEventListener('keyup', count);
 
             count = (event) => {
                 if(document.querySelector('#owned_money') == null) {
@@ -42,7 +57,7 @@ xhr.addEventListener('load', () => {
                     document.querySelector('#owned_money').innerText = `Masz: ${(event.target.value * course).toFixed(2)} zł`;
                 }
             }
-            money.addEventListener('keyup', count);
+            document.querySelector('.main').addEventListener('keyup', count);
 
             if(resultDiv.childElementCount == 0) {
                 groupDiv.appendChild(moneyLabel);
@@ -54,11 +69,7 @@ xhr.addEventListener('load', () => {
             } else {
                 document.querySelector('#course').innerText = `Kurs: ${course} zł`;
             }
-
-            
         })
-        xhrCurrency.open('GET',`http://api.nbp.pl/api/exchangerates/rates/A/${currencyCode}/`,true);
-        xhrCurrency.send();
     })
 })
 
