@@ -42,7 +42,7 @@ xhr.addEventListener('load', () => {
                     document.querySelector('#owned_money').innerText = `Masz: ${(event.target.value * course).toFixed(2)} zł`;
                 }
             }
-            money.addEventListener('change', count);
+            money.addEventListener('keyup', count);
 
             if(resultDiv.childElementCount == 0) {
                 groupDiv.appendChild(moneyLabel);
