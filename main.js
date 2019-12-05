@@ -1,31 +1,35 @@
 // FETCHING CURRENCY LIST FROM nbp.pl
 const xhr = new XMLHttpRequest();
+const mainElement = document.querySelector('.main');
 const resultDiv = document.querySelector('#result');
+const currencyList = document.querySelector('#currency_list');
 xhr.addEventListener('load', () => {
     if(xhr.status === 200) {
-        let json = JSON.parse(xhr.response);
-        let rates = json[0].rates;
+        const json = JSON.parse(xhr.response);
+        const rates = json[0].rates;
         rates.forEach(element => {
             let option = document.createElement('option');
+            let code = document.createElement('span');
             option.innerText = element.currency.toUpperCase();
             option.value = element.mid;
-            document.querySelector('#currency_list').appendChild(option);
+            code.className = 'currency_code';
+            code.innerText = element.code;
+            currencyList.appendChild(option);
+            currencyList.appendChild(code);
         })
     }
-    document.querySelector('#currency_list').addEventListener('change', (event) => {
-        let course = event.target.selectedOptions[0].value;
-        console.log(Number(course));
-        console.log(typeof course);
-        // console.log(Math.round(course*100)/100);
-        let span = document.createElement('span');
-        let groupDiv = document.createElement('div');
-        let groupDivCourse = document.createElement('div');
-        let moneyLabel = document.createElement('label');
-        let money = document.createElement('input');
+    currencyList.addEventListener('change', (event) => {
+        const course = Number(event.target.selectedOptions[0].value).toFixed(2);
+        const currencyCode = event.target.selectedOptions[0].nextElementSibling.innerText;
+        const span = document.createElement('span');
+        const groupDiv = document.createElement('div');
+        const groupDivCourse = document.createElement('div');
+        const moneyLabel = document.createElement('label');
+        const money = document.createElement('input');
         groupDiv.className = 'group';
         groupDivCourse.className = 'group';
         moneyLabel.for = 'money';
-        moneyLabel.innerText = 'Ilość pięniędzy:';
+        moneyLabel.innerText = 'Ilość pięniędzy (w zł):';
         money.id = 'money';
         money.type = 'number';
         span.innerText = `Kurs: ${course} zł`;
@@ -33,15 +37,15 @@ xhr.addEventListener('load', () => {
 
         count = (event) => {
             if(document.querySelector('#owned_money') == null) {
-                let result = document.createElement('span');
+                const result = document.createElement('span');
                 result.id = 'owned_money';
-                result.innerText = `Masz: ${(event.target.value * course).toFixed(2)} zł`;
+                result.innerText = `Masz: ${(event.target.value / course).toFixed(2)} ${currencyCode}`;
                 resultDiv.appendChild(result);
             } else {
-                document.querySelector('#owned_money').innerText = `Masz: ${(event.target.value * course).toFixed(2)} zł`;
+                document.querySelector('#owned_money').innerText = `Masz: ${(event.target.value / course).toFixed(2)} ${currencyCode}`;
             }
         }
-        document.querySelector('.main').addEventListener('keyup', count);
+        mainElement.addEventListener('keyup', count);
 
         if(resultDiv.childElementCount == 0) {
             groupDiv.appendChild(moneyLabel);
@@ -53,7 +57,15 @@ xhr.addEventListener('load', () => {
             document.querySelector('#course').innerText = `Kurs: ${course} zł`;
         }
     })
+    currencyList.addEventListener('change', (event) => {
+        const ownedMoney = document.querySelector('#owned_money');
+        const currencyCode = event.target.selectedOptions[0].nextElementSibling.innerText;
+        if(ownedMoney != null) {
+            const input = document.querySelector('#money');
+            const course = Number(event.target.value).toFixed(2);
+            ownedMoney.innerText = `Masz: ${(course / input.value).toFixed(2)} ${currencyCode}`;
+        }
+    })
 })
-
 xhr.open('GET', 'http://api.nbp.pl/api/exchangerates/tables/A/?format=json', true);
 xhr.send();
